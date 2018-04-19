@@ -14,10 +14,12 @@ from celery.contrib import rdb
 import logging
 from logging.handlers import SysLogHandler
 
+import os
+
 def get_logger():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    fh = logging.FileHandler('/home/xf11bm/logs/stress_test.log')
+    fh = logging.FileHandler(os.path.expandir('~/logs/stress_test.log'))
     fh.setLevel(logging.INFO)
     # host is your server that used for the log
     formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
@@ -36,8 +38,8 @@ def main_func(data, store, signal, context):
     dag_names = list()
     N = store.get("N")
     print(N)
-    logger = get_logger()
-    logger.info("test")
+    #logger = get_logger()
+    #logger.info("test")
     for i in range(N):
         print("iteration {} of {}".format(i, N))
         dag_names.append(signal.start_dag(sub_dag, data=data))
@@ -55,17 +57,12 @@ def sub_func(data, store, signal, context):
         dag_names.append(signal.start_dag(subsub_dag, data=data))
 
     #rdb.set_trace()
-    logger = get_logger()
-    logger.info("starting DAG search loop")
+    #logger = get_logger()
+    #logger.info("starting DAG search loop")
     stopped = False
     while not stopped:
         if len(dag_names):
             dag_name = dag_names.popleft()
-            if not signal._is_stopped(dag_name=dag_name):
-                logger.info("{} not stopped".format(dag_name))
-                dag_names.append(dag_name)
-            else:
-                logger.info("{} is stopped".format(dag_name))
 
             if len(dag_names) == 0:
                 stopped = True
